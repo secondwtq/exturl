@@ -2,7 +2,12 @@
 	"manifest_version": 2,
 	"name": "URL copier",
 	"description": "",
-	"version": "0.3",
+	"version": "0.3.1",
+    "applications": {
+        "gecko": {
+            "id": "exturl@pureandlazy.com"
+        }
+    },
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
@@ -18,5 +23,5 @@
 		"default_title": "exturl Icon",
 		"default_popup": "popup.html"
 	},
-	"permissions": [ "tabs", "contextMenus", "clipboardWrite" ]
+	"permissions": [ "<all_urls>", "activeTab", "tabs", "contextMenus", "clipboardWrite" ]
 }
