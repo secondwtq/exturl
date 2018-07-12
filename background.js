@@ -5,6 +5,7 @@ const reURL = /^([a-zA-Z]*)\:\/\/(.*?)\/?(\#.*)?$/
 const schemesNotPreserved = new Set([ "https", "http" ]);
 
 const exturlFromTab = tab => {
+	if (/^about\:.*/i.test(tab.url)) { return null; }
 	const [ url, scheme, location, hash ] = reURL.exec(tab.url)
 	const prefix = schemesNotPreserved.has(scheme.toLowerCase()) ? "" : `${scheme}://`
 	return `${prefix}${location} ${tab.title.trim()}`
@@ -15,25 +16,25 @@ const EXTURL_KINDS = {
 
 const EXTURL_OPERATIONS = {
 	"copyCurrentPage": msg =>
-		chrome.tabs.query({ "active": true, currentWindow: true }, ([ tab ]) =>
-			chrome.tabs.sendMessage(tab.id, {
+		browser.tabs.query({ "active": true, currentWindow: true }).then(([ tab ]) =>
+			browser.tabs.sendMessage(tab.id, {
 				"kind": "POPUP_TO_COPY",
 				"content": exturlFromTab(tab)
 			})
 		),
 	"justCopyCurrentPage": msg =>
-		chrome.tabs.query({ "active": true, currentWindow: true }, ([ tab ]) =>
-			chrome.tabs.sendMessage(tab.id, {
+		browser.tabs.query({ "active": true, currentWindow: true }).then(([ tab ]) =>
+			browser.tabs.sendMessage(tab.id, {
 				"kind": "COPY_TO_CLIPBOARD",
 				"content": exturlFromTab(tab)
 			})
 		),
 	"copyAllCurrentWindow": msg =>
-		chrome.tabs.query({ "windowId": chrome.windows.WINDOW_ID_CURRENT }, tabsCurrentWindow =>
-			chrome.tabs.query({ "active": true, currentWindow: true }, ([ currentTab ]) =>
-				chrome.tabs.sendMessage(currentTab.id, {
+		browser.tabs.query({ "windowId": browser.windows.WINDOW_ID_CURRENT }).then(tabsCurrentWindow =>
+			browser.tabs.query({ "active": true, currentWindow: true }).then(([ currentTab ]) =>
+				browser.tabs.sendMessage(currentTab.id, {
 					"kind": "POPUP_TO_COPY",
-					"content": tabsCurrentWindow.map(exturlFromTab).join("\n")
+					"content": tabsCurrentWindow.map(exturlFromTab).filter(i => !!i).join("\n")
 				})
 			)
 		)
@@ -49,7 +50,7 @@ operations = EXTURL_OPERATIONS
 // 	}
 // })
 
-chrome.contextMenus.create({
+browser.contextMenus.create({
 	"title": "exturl Active Tab",
 	"onclick": () => EXTURL_OPERATIONS["justCopyCurrentPage"]()
 })

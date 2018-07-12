@@ -22,7 +22,7 @@ const popupToCopy = content => {
 	modal.open()
 }
 
-chrome.runtime.onMessage.addListener(
+browser.runtime.onMessage.addListener(
 	(request, sender, sendResponse) => {
 		if (request["kind"] == "POPUP_TO_COPY") {
 			popupToCopy(request["content"])
