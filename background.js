@@ -1,4 +1,5 @@
 
+// TODO: handle URLs like about:debugging
 const reURL = /^([a-zA-Z]*)\:\/\/(.*?)\/?(\#.*)?$/
 
 const schemesNotPreserved = new Set([ "https", "http" ]);
@@ -8,21 +9,6 @@ const exturlFromTab = tab => {
 	const prefix = schemesNotPreserved.has(scheme.toLowerCase()) ? "" : `${scheme}://`
 	return `${prefix}${location} ${tab.title.trim()}`
 }
-
-const copyToClipboard = content => {
-	const element = document.createElement("textarea")
-	Object.assign(element.style, {
-		width: "2em",
-		height: "2em"
-	})
-	element.value = content
-	document.body.appendChild(element)
-	element.focus()
-	element.select()
-	document.execCommand("copy")
-	document.body.removeChild(element)
-}
-
 const EXTURL_KINDS = {
 	"EXTURL_OP": msg => EXTURL_OPERATIONS[msg["operation"]](msg)
 }
@@ -37,7 +23,10 @@ const EXTURL_OPERATIONS = {
 		),
 	"justCopyCurrentPage": msg =>
 		chrome.tabs.query({ "active": true, currentWindow: true }, ([ tab ]) =>
-			copyToClipboard(exturlFromTab(tab))
+			chrome.tabs.sendMessage(tab.id, {
+				"kind": "COPY_TO_CLIPBOARD",
+				"content": exturlFromTab(tab)
+			})
 		),
 	"copyAllCurrentWindow": msg =>
 		chrome.tabs.query({ "windowId": chrome.windows.WINDOW_ID_CURRENT }, tabsCurrentWindow =>
@@ -50,13 +39,15 @@ const EXTURL_OPERATIONS = {
 		)
 }
 
-const port = chrome.extension.connect({ "name": "exturlPort" })
+operations = EXTURL_OPERATIONS
 
-chrome.extension.onConnect.addListener(port => {
-	if (port.name == "exturlPort") {
-		port.onMessage.addListener(msg => EXTURL_KINDS[msg["kind"]](msg))
-	}
-})
+// const port = chrome.extension.connect({ "name": "exturlPort" })
+
+// chrome.extension.onConnect.addListener(port => {
+// 	if (port.name == "exturlPort") {
+// 		port.onMessage.addListener(msg => EXTURL_KINDS[msg["kind"]](msg))
+// 	}
+// })
 
 chrome.contextMenus.create({
 	"title": "exturl Active Tab",

@@ -1,24 +1,26 @@
 
-const port = chrome.extension.connect({
-	"name": "exturlPort" })
+// const port = chrome.extension.connect({
+// 	"name": "exturlPort" })
 
-const postOperationMessage = operation =>
-	port.postMessage({
-		"kind": "EXTURL_OP",
-		"operation": operation
-	})
+// const postOperationMessage = operation =>
+// 	port.postMessage({
+// 		"kind": "EXTURL_OP",
+// 		"operation": operation
+// 	})
+
+console.log(browser.extension.getBackgroundPage().operations)
 
 document.getElementById("trigger-copy-current-page")
 	.addEventListener("click", () =>
-		(postOperationMessage("copyCurrentPage"), window.close())
+		(browser.extension.getBackgroundPage().operations.copyCurrentPage(), window.close())
 	)
 
 document.getElementById("trigger-just-copy-current-page")
 	.addEventListener("click", () =>
-		(postOperationMessage("justCopyCurrentPage"), window.close())
+		(browser.extension.getBackgroundPage().operations.justCopyCurrentPage(), window.close())
 	)
 
 document.getElementById("trigger-copy-all-current-window")
 	.addEventListener("click", () =>
-		(postOperationMessage("copyAllCurrentWindow"), window.close())
+		(browser.extension.getBackgroundPage().operations.copyAllCurrentWindow(), window.close())
 	)

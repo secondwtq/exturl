@@ -18,5 +18,5 @@
 		"default_title": "exturl Icon",
 		"default_popup": "popup.html"
 	},
-	"permissions": [ "tabs", "contextMenus" ]
+	"permissions": [ "tabs", "contextMenus", "clipboardWrite" ]
 }

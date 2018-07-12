@@ -27,6 +27,9 @@ chrome.runtime.onMessage.addListener(
 		if (request["kind"] == "POPUP_TO_COPY") {
 			popupToCopy(request["content"])
 		}
+		if (request["kind"] == "COPY_TO_CLIPBOARD") {
+			copyToClipboard(request["content"])
+		}
 	}
 )
 
@@ -44,3 +47,17 @@ document.body.addEventListener("click",
 			e.target.dispatchEvent(new CustomEvent("exturlCopyCompleted", { }))
 		}
 	});
+
+const copyToClipboard = content => {
+	const element = document.createElement("textarea")
+	Object.assign(element.style, {
+		width: "2em",
+		height: "2em"
+	})
+	document.body.appendChild(element)
+	element.value = content
+	// element.focus()
+	element.select()
+	document.execCommand("copy")
+	document.body.removeChild(element)
+}
